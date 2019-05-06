@@ -1,0 +1,6 @@
+.formdata-required::before {
+    content: '*';
+    color: red;
+    font-weight: 900;
+    margin: 2px;
+}

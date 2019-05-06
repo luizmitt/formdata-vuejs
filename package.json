@@ -1,0 +1,31 @@
+{
+  "name": "formdata-vuejs",
+  "version": "1.0.0",
+  "description": "formdata for vuejs",
+  "main": "src/formdataComponent.js",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "bootstrap": "^4.3.1",
+    "bootstrap4": "0.0.1-security",
+    "jquery": "^3.3.1",
+    "vue": "^2.6.8"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luizschmitt/formdata-vuejs.git"
+  },
+  "keywords": [
+    "vuejs",
+    "datatable"
+  ],
+  "author": "Luiz Schmitt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/luizschmitt/formdata-vuejs/issues"
+  },
+  "homepage": "https://github.com/luizschmitt/formdata-vuejs#readme"
+}
