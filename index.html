@@ -18,7 +18,9 @@
                         [{field:'TX_NOME', label:'Nome', input:{placeholder:'Nome', required:true, pattern:'[0-9]'}}],
                         [{field:'TX_RG', label:'RG'}, {field:'TX_CPF', label:'CPF', input:{required:true, pattern: {regex: '[0-9]{3}\.[0-9]{3}\.[0-9]{3}\-[0-9]{2}', 'invalid-message': 'O número do CPF esta invalido!'}}}],
                         [{field:'TX_ENDERECO', label:'Endereço', input:{required:true}}],
-                        [{field:'NB_SEXO', 'label': 'Sexo', select: {placeholder:'Escolha...', selected:0, data:[{value:1, text:'Masculino'},{value:2, text:'Feminino'}]}}]
+                        [{field:'NB_SEXO', 'label': 'Sexo', select: {required:true, placeholder:'Escolha...', selected:0, data:[{value:1, text:'Masculino'},{value:2, text:'Feminino'}]}}],
+                        [{field:'TX_ARQUIVO', label:'Enviar Arquivo', file:{required:true}}],
+                        [{field:'CS_TIPO', label:'Escolha', checkbox:{required:true}}]
                      ]" :actions="[
                         {icon:'fa fa-check', label:'Salvar', urlApi:'http://localhost:9001/salvar.php'}
                       ]">
