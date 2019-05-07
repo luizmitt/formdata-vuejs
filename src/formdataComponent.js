@@ -6,6 +6,7 @@
  */
 
 Vue.component('formdata', {
+    name: 'formdata',
     props: ['urlApi', 'fields', 'actions'],
     template: `
 <form class="needs-validation" novalidate @submit.prevent="save()">
@@ -15,7 +16,7 @@ Vue.component('formdata', {
                 <template v-if="column.input">
                     <div class="form-group">
                         <label :class="[{'formdata-required':column.input.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
-                        <input :type="column.input.type" class="form-control" :class="column.input.class" :id="column.field" :placeholder="column.input.placeholder" :disabled="column.input.disabled" :required="column.input.required" :pattern="column.input.pattern">
+                        <input :ref="column.field" :pattern="setPatternValue(column.field, column.input.pattern)" :type="column.input.type" class="form-control" :class="column.input.class" :id="column.field" :placeholder="column.input.placeholder" :disabled="column.input.disabled" :required="column.input.required">
                         <div class="invalid-feedback">
                             Preencha o campo obrigatório.
                         </div>
@@ -71,7 +72,15 @@ Vue.component('formdata', {
             },
             // definições padrões do formdata
             formdata_default: {
+                message: {
+                    required: 'Preencha o campo obrigatório.',
+                    regex: 'O valor do campo está inválido.'
+                },
+                // layout em linhas, campo em baixo de campo
+                // por padrão desabilitado, podendo formatar o layout
+                // utilizando a posição com arrays como se fosse uma matriz.
                 rowOnly: false,
+                // tipo de campo input, suas configurações padrão
                 input: {
                     type: 'text',
                     value: '',
@@ -82,7 +91,7 @@ Vue.component('formdata', {
                     placeholder: 'Preencha o campo',
                     mask: {}
                 },
-
+                // tipo de campo select, suas configurações padrão
                 select: {
                     placeholder: 'Escolha...',
                     data: [],
@@ -91,12 +100,16 @@ Vue.component('formdata', {
                     required: false,
                     disabled: false
                 },
-
+                // tipo de campo checkbox, suas configurações padrão
                 checkbox: {
                     selected: '',
                     class: '',
                     required: false,
                     disabled: false
+                },
+                // tipo de campo textarea, suas configurações padrão
+                textarea: {
+
                 }
             }
         }
@@ -117,30 +130,54 @@ Vue.component('formdata', {
             }
             // verifica se a coluna é um tipo definido, caso contrario,
             // a coluna é definida como input[type=text] por padrão.
-            fields.map((column, index) => {
-                if (column.input || column.select || column.checkbox) {
-                    return false;
-                }
+            fields.map((row, rIndex) => {
+                row.map((column, cIndex) => {
+                    if (column.input || column.select || column.checkbox) {
+                        return false;
+                    }
+                    fields[rIndex][cIndex] = {
+                        ...column,
+                        input: self.formdata_default.input
+                    };
+                });
+            });
 
-                fields[index] = {
-                    ...column,
-                    input: self.formdata_default.input
-                };
-            })
             return fields;
         }
     },
     methods: {
-        save() {
+        async save() {
+            this.validate();
+            await axios.get(this.urlApi, {})
+                .then(res => {
 
+                })
+                .catch(err => {
+
+                });
+        },
+
+        validate() {
+            let self = this;
             $("input[required]").each(function () {
                 if (!$(this).val().length) {
                     $(this).addClass('is-invalid');
+                    $(this).next('.invalid-feedback').html(self.formdata_default.message.required);
                 } else {
                     $(this).removeClass('is-invalid').addClass('is-valid');
                 }
             });
+            $("input[pattern]").each(function () {
+                let pattern = $(this).attr("pattern");
+                let message = $(this).attr("patternmessage");
 
+                if (!$(this).val().match(pattern)) {
+                    $(this).addClass('is-invalid');
+                    $(this).next('.invalid-feedback').html(message?message:self.formdata_default.message.regex);
+                } else {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                }
+            });
         },
 
         // verifica quantas colunas tem por linha e quebra em até 12 colunas.
@@ -152,7 +189,7 @@ Vue.component('formdata', {
                 return maxColumn;
             }
 
-            let width = parseInt(12 / (Object.keys(row).length - 1));
+            let width = parseInt(12 / (Object.keys(row).length));
 
             if (width > 1 && width < 12) {
                 maxColumn = `col-${Math.ceil(width)}`;
@@ -161,6 +198,18 @@ Vue.component('formdata', {
             }
 
             return maxColumn;
+        },
+
+        setPatternValue(el, pattern) {
+            if (typeof pattern === 'object') {
+                setTimeout(function() {
+                    $("#" + el).attr('patternmessage', pattern['invalid-message']);
+                },1);
+                
+                return pattern.regex;
+            }
+
+            return (pattern !== undefined && pattern.length) ? pattern : false;
         }
     }
 });
