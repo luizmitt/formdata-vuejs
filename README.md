@@ -68,7 +68,41 @@ formdata possui algumas propriedades, com bind ou não, obrigatórias.
 | actions     | são as ações que o formulário poderá ter                             | sim               |
 
 ### fields
-> em breve
+
+É um array de objetos onde irá conter todos os campos do formulário. Cada objeto possui as seguinter configurações:
+
+| chave                                     | valor  | descrição                                                                 |
+| ----------------------------------------- | ------ | ------------------------------------------------------------------------- |
+| field                                     | string | nome do campo, sera criado o ref, id e name com esse nome                 |
+| label                                     | string | é o texto que fica amostra para o usuário                                 |
+| input, select, checkbox, file ou textarea | object | é o tipo do campo que será criado, se não for informado o padrão é input. |
+
+Quando não for passado o tipo do campo na chave do objeto, sempre será o input com os valores padrão do componente.
+
+### valores 
+
+```json
+{
+    [
+        {
+            field:'id', 
+            label:'Código', 
+            input:{
+                type:'text',
+                required:true
+            }
+        },
+        {
+            field:'nome', 
+            label:'Nome', 
+            input:{
+                type:'text',
+                required:true
+            }
+        }        
+    ]
+}
+```
 #### validação de dados em branco
 > em breve
 #### validação de dados em regex

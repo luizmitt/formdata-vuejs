@@ -1,0 +1,24 @@
+{
+    "comboA": [{
+            "id": "1",
+            "value": "1",
+            "text": "opcao A1"
+        },
+        {
+            "id": "2",
+            "value": "2",
+            "text": "opcao A2"
+        }
+    ],
+
+    "comboC": [{
+            "id": "1",
+            "name": "opcao C1"
+        },
+
+        {
+            "id": "2",
+            "name": "opcao C1"
+        }
+    ]
+}
