@@ -157,21 +157,38 @@ Vue.component("formdata", {
             // a coluna é definida como input[type=text] por padrão.
             this.formdata.fields.map(async function (row, rIndex) {
                 row.map(async function (column, cIndex) {
+                    // se o field já estiver configurado com um tipo, não faz nada
                     if (column.input || column.file || column.checkbox || column.textarea) {
                         return false;
-                    } else if (column.select && column.select.data !== undefined) {
+                    }
+                    // mas se for select
+                    else if (column.select && column.select.data !== undefined) {
+                        // se tiver um array de dados
                         if (Array.isArray(column.select.data)) {
+                            // replica os dados
                             vm.formdata.fields[rIndex][cIndex].select.data = column.select.data;
-                        } else if (typeof column.select.data === 'string') {
+                        }
+                        // se for um string, precisa ser uma url
+                        else if (typeof column.select.data === 'string') {
+                            // executa o axios nessa url
                             await axios.get(column.select.data).then(res => {
+                                // replica os dados pro combo
                                 vm.formdata.fields[rIndex][cIndex].select.data = res.data;
                             })
-                        } else if (typeof column.select.data === 'object') {
+                        }
+                        // e se for um objeto
+                        else if (typeof column.select.data === 'object') {
+                            // executa o axios na urlApi 
                             await axios.get(column.select.data.urlApi).then(res => {
+                                // se houver switchFields
                                 if (vm.formdata.fields[rIndex][cIndex].select.data.switchFields !== undefined) {
+                                    // pega o field que sera value do combo
                                     let value = vm.formdata.fields[rIndex][cIndex].select.data.switchFields.value;
+                                    // pega o field que sera o text do combo
                                     let text = vm.formdata.fields[rIndex][cIndex].select.data.switchFields.text;
+                                    // limpa os dados
                                     vm.formdata.fields[rIndex][cIndex].select.data = [];
+                                    // faz a troca e replica os dados pro combo
                                     res.data.map((result) => {
                                         if (result[value] !== undefined && result[text] !== undefined) {
                                             vm.formdata.fields[rIndex][cIndex].select.data.push({
@@ -183,7 +200,10 @@ Vue.component("formdata", {
                                 }
                             });
                         }
-                    } else {
+                    }
+                    // se não for nenhum dos tipos acima, por padrão ele carrega
+                    // input com valores default.
+                    else {
                         vm.formdata.fields[rIndex][cIndex] = {
                             ...column,
                             input: vm.formdata_default.input
@@ -192,6 +212,7 @@ Vue.component("formdata", {
                 });
             });
 
+            // retorna todo fields devidamente configurado.
             return this.formdata.fields;
         }
     },
@@ -287,7 +308,7 @@ Vue.component("formdata", {
 
             return pattern !== undefined && pattern.length ? pattern : false;
         },
-
+        // se houver um field file, o formulario virta multipart
         setFormType(form) {
             if (form) {
                 this.formdata.hasFiles = true
