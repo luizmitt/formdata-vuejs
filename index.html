@@ -21,9 +21,11 @@
                         [{field:'NB_SEXO', 'label': 'Sexo', select: {required:true, placeholder:'Escolha...', selected:0, data:[{value:1, text:'Masculino'},{value:2, text:'Feminino'}]}}],
                         [{field:'TX_ARQUIVO', label:'Enviar Arquivo', file:{required:true}}],
                         [{field:'CS_TIPO', label:'Escolha', checkbox:{required:true}}],
-                        [{field:'CS_A', label:'Opcao A', select:{required:true, data: 'http:///localhost:3000/comboA'}}],
+                        [{field:'CS_A', label:'Opcao A', select:{required:true, data:'http:///localhost:3000/comboA'}}, {field:'outro', label:'teste'}],
                         [{field:'CS_B', label:'Opcao B', select:{required:true, data:[{value:1, text:'opcao b1'}]}}],
-                        [{field:'CS_C', label:'Opcao C', select:{required:true, data: {urlApi:'http://localhost:3000/comboC'} }}]
+                        [{field:'CS_C', label:'Opcao C', select:{required:true, data:{urlApi:'http://localhost:3000/comboC', switchFields:{value:'id',text:'name'}} }}],
+                        [{field:'CS_C', label:'Opcao C', select:{required:true, data:{urlApi:'http://localhost:3000/comboC', switchFields:{value:'id',text:'name'}} }}],
+                        [{field:'CS_C', label:'Opcao C', select:{required:true, data:{urlApi:'http://localhost:3000/comboC', switchFields:{value:'id',text:'name'}} }}]
                      ]" :actions="[
                         {icon:'fa fa-check', label:'Salvar', urlApi:'http://localhost:9001/salvar.php'}
                       ]">

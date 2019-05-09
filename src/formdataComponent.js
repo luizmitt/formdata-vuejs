@@ -10,9 +10,9 @@ Vue.component("formdata", {
     props: ["urlApi", "fields", "actions"],
     template: `
 <form class="needs-validation" novalidate @submit.prevent="save()" :enctype="formdata.hasFiles?'multipart/form-data':false">
-    <template v-for="(row, index) in displayedFields">
+    <template v-for="(row) in displayedFields">
         <div class="row">
-            <div v-for="(column, index) in row" :class="setColumnWidthByRow(row)">
+            <div v-for="(column) in row" :class="setColumnWidthByRow(row)">
                 <template v-if="column.input">
                     <div class="form-group">
                         <label :class="[{'formdata-required':column.input.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
@@ -36,7 +36,7 @@ Vue.component("formdata", {
                         <label :class="[{'formdata-required':column.select.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
                         <select class="form-control" :class="column.select.class" :id="column.field"  :disabled="column.select.disabled" :required="column.select.required">
                             <option v-show="column.select.placeholder" value>{{column.select.placeholder}}</option>
-                            <option :selected="column.select.selected == data.value" v-for="data in setSelectData(column.select.data)" :value="data.value">{{data.text}}</option>
+                            <option :selected="column.select.selected == data.value" v-for="data in column.select.data" :value="data.value">{{data.text}}</option>
                         </select>
                         <div class="invalid-feedback">
                             Preencha o campo obrigatório.
@@ -46,7 +46,7 @@ Vue.component("formdata", {
                 <template v-else-if="column.checkbox">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" :id="column.field"  :disabled="column.checkbox.disabled" :required="column.checkbox.required">
-                        <label :class="[{'formdata-required':column.checkbox.required}]"  class="form-check-label" :for="column.field">
+                        <label :class="[{'formdata-required':column.checkbox.required}]" class="form-check-label" :for="column.field">
                             {{column.label}}
                         </label>
                         <div class="invalid-feedback">
@@ -75,6 +75,7 @@ Vue.component("formdata", {
     <template v-else>
 
     <button type="submit">Salvar</button>
+    <button type="reset">Resetar</button>
     </template>
 </form>`,
     data() {
@@ -105,7 +106,7 @@ Vue.component("formdata", {
                     required: false,
                     disabled: false,
                     pattern: "",
-                    placeholder: "",
+                    placeholder: "Escreva algo...",
                     mask: {}
                 },
                 // tipo de campo input[type=file], suas configurações padrão
@@ -148,27 +149,53 @@ Vue.component("formdata", {
             // se não for criado array para definição de linhas/colunas
             // agrupa todos e faz somente quebra de linhas.
             if (!Array.isArray(fields[0])) {
-                fields = [];
-                fields.push(this.formdata.fields);
+                this.formdata.fields = [];
+                this.formdata.fields.push(fields);
                 this.formdata_default.rowOnly = true;
             }
             // verifica se a coluna é um tipo definido, caso contrario,
             // a coluna é definida como input[type=text] por padrão.
-            fields.map((row, rIndex) => {
-                row.map((column, cIndex) => {
-                    if (column.input || column.file || column.select || column.checkbox) {
+            this.formdata.fields.map(async function (row, rIndex) {
+                row.map(async function (column, cIndex) {
+                    if (column.input || column.file || column.checkbox || column.textarea) {
                         return false;
+                    } else if (column.select && column.select.data !== undefined) {
+                        if (Array.isArray(column.select.data)) {
+                            vm.formdata.fields[rIndex][cIndex].select.data = column.select.data;
+                        } else if (typeof column.select.data === 'string') {
+                            await axios.get(column.select.data).then(res => {
+                                vm.formdata.fields[rIndex][cIndex].select.data = res.data;
+                            })
+                        } else if (typeof column.select.data === 'object') {
+                            await axios.get(column.select.data.urlApi).then(res => {
+                                if (vm.formdata.fields[rIndex][cIndex].select.data.switchFields !== undefined) {
+                                    let value = vm.formdata.fields[rIndex][cIndex].select.data.switchFields.value;
+                                    let text = vm.formdata.fields[rIndex][cIndex].select.data.switchFields.text;
+                                    vm.formdata.fields[rIndex][cIndex].select.data = [];
+                                    res.data.map((result) => {
+                                        if (result[value] !== undefined && result[text] !== undefined) {
+                                            vm.formdata.fields[rIndex][cIndex].select.data.push({
+                                                'value': result[value],
+                                                'text': result[text]
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    } else {
+                        vm.formdata.fields[rIndex][cIndex] = {
+                            ...column,
+                            input: vm.formdata_default.input
+                        };
                     }
-                    fields[rIndex][cIndex] = {
-                        ...column,
-                        input: vm.formdata_default.input
-                    };
                 });
             });
 
-            return fields;
+            return this.formdata.fields;
         }
     },
+
     methods: {
         // Método para executar a ação do formulário.
         async save() {
@@ -259,25 +286,6 @@ Vue.component("formdata", {
             }
 
             return pattern !== undefined && pattern.length ? pattern : false;
-        },
-
-        async setSelectData(data) {
-            if (Array.isArray(data)) {
-                console.log("E array");
-                return data;
-            } else if (typeof data === 'string') {
-                console.log("E string");
-                await axios.get(data)
-                    .then(res => {
-                        return res.data;
-                    })
-            } else if (typeof data === 'object') {
-                console.log("E Objeto")
-                await axios.get(data.urlApi)
-                    .then(res => {
-                        return res.data;
-                    })
-            }
         },
 
         setFormType(form) {

@@ -79,25 +79,30 @@ formdata possui algumas propriedades, com bind ou não, obrigatórias.
 
 Quando não for passado o tipo do campo na chave do objeto, sempre será o input com os valores padrão do componente.
 
-### valores 
+### fields valores 
 
 ```json
 {
     [
         {
-            field:'id', 
-            label:'Código', 
-            input:{
-                type:'text',
-                required:true
+            // nome do campo
+            "field":"id", // id, name e ref
+            // se o campo possuir um label
+            "label":"Código",
+            // tipo do campo, pode ser input, select, checkbox, file ou textarea
+            "input":{
+                // configuração do tipo de campo
+                "type":"text",
+                "required":"true"
             }
         },
+        // ...
         {
-            field:'nome', 
-            label:'Nome', 
-            input:{
-                type:'text',
-                required:true
+            "field":"nome", 
+            "label":"Nome", 
+            "input":{
+                "type":"text",
+                "required":"true"
             }
         }        
     ]
