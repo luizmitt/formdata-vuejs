@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable max-len */
 /* eslint-disable func-names */
 /* eslint-disable no-undef */
@@ -16,7 +17,7 @@ Vue.component('formdata', {
   props: ['urlApi', 'fields', 'actions'],
   template: `
 <form class="needs-validation" novalidate @submit.prevent="save()" :enctype="formdata.hasFiles?'multipart/form-data':false">
-    <template v-for="(row) in displayedFields">
+    <template v-for="(row) in this.formdata.fields">
         <div class="row">
             <div v-for="(column) in row" :class="setColumnWidthByRow(row)">
                 <template v-if="column.input">
@@ -146,16 +147,19 @@ Vue.component('formdata', {
     };
   },
   computed: {
+
+  },
+  methods: {
     // método para tratar os campos passados no componente para montar o formdata.
-    displayedFields() {
+    async prepareFields() {
       // hack para utilizar vue dentro de outro scopo
       const vm = this;
       // dados dos campos para o formdata
       const {
         fields,
       } = this.formdata;
-      // se não for criado array para definição de linhas/colunas
-      // agrupa todos e faz somente quebra de linhas.
+        // se não for criado array para definição de linhas/colunas
+        // agrupa todos e faz somente quebra de linhas.
       if (!Array.isArray(fields[0])) {
         this.formdata.fields = [];
         this.formdata.fields.push(fields);
@@ -163,8 +167,8 @@ Vue.component('formdata', {
       }
       // verifica se a coluna é um tipo definido, caso contrario,
       // a coluna é definida como input[type=text] por padrão.
-      this.formdata.fields.map(async (row, rIndex) => {
-        row.map(async (column, cIndex) => {
+      return this.formdata.fields.map(async (row, rIndex) => {
+        await Promise.all(row.map(async (column, cIndex) => {
           // se o field já estiver configurado com um tipo, não faz nada
           if (column.input || column.file || column.checkbox || column.textarea) {
             return false;
@@ -174,35 +178,34 @@ Vue.component('formdata', {
             // se tiver um array de dados
             if (Array.isArray(column.select.data)) {
               // replica os dados
-              vm.formdata.fields[rIndex][cIndex].select.data = column.select.data;
+              column.select.data = column.select.data;
             } else if (typeof column.select.data === 'string') { // se for um string, precisa ser uma url
               // executa o axios nessa url
               await axios.get(column.select.data).then((res) => {
                 // replica os dados pro combo
-                vm.formdata.fields[rIndex][cIndex].select.data = res.data;
+                column.select.data = res.data;
               });
             } else if (typeof column.select.data === 'object') { // e se for um objeto
               // executa o axios na urlApi
               await axios.get(column.select.data.urlApi).then((res) => {
                 // se houver switchFields
-                if (vm.formdata.fields[rIndex][cIndex].select.data.switchFields !== undefined) {
+                if (column.select.data.switchFields !== undefined) {
                   // pega o field que sera value do combo
                   // pega o field que sera o text do combo
                   const {
                     value,
                     text,
-                  } = vm.formdata.fields[rIndex][cIndex].select.data.switchFields;
-                  // limpa os dados
-                  vm.formdata.fields[rIndex][cIndex].select.data = [];
+                  } = column.select.data.switchFields;
+                    // limpa os dados
+                  column.select.data = [];
                   // faz a troca e replica os dados pro combo
                   res.data.map((result) => {
                     if (result[value] !== undefined && result[text] !== undefined) {
-                      vm.formdata.fields[rIndex][cIndex].select.data.push({
+                      column.select.data.push({
                         value: result[value],
                         text: result[text],
                       });
                     }
-                    return true;
                   });
                 }
               });
@@ -213,17 +216,11 @@ Vue.component('formdata', {
               input: vm.formdata_default.input,
             };
           }
-          return true;
-        });
-        return true;
+
+          return column;
+        }));
       });
-
-      // retorna todo fields devidamente configurado.
-      return this.formdata.fields;
     },
-  },
-
-  methods: {
     // Método para executar a ação do formulário.
     async save() {
       if (this.validate()) {
@@ -249,9 +246,7 @@ Vue.component('formdata', {
             .next('.invalid-feedback')
             .html(vm.formdata_default.message.required);
         } else {
-          $(this)
-            .removeClass('is-invalid')
-            .addClass('is-valid');
+          $(this).removeClass('is-invalid').addClass('is-valid');
         }
       });
       // Verifica se as expressões regulares estão certas.
@@ -314,5 +309,9 @@ Vue.component('formdata', {
       }
       return form;
     },
+  },
+
+  mounted() {
+    this.prepareFields();
   },
 });
