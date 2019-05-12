@@ -85,29 +85,130 @@ Quando não for passado o tipo do campo na chave do objeto, sempre será o input
 {
     [
         {
-            // nome do campo
-            "field":"id", // id, name e ref
-            // se o campo possuir um label
+            "field":"id",
             "label":"Código",
-            // tipo do campo, pode ser input, select, checkbox, file ou textarea
-            "input":{
-                // configuração do tipo de campo
-                "type":"text",
-                "required":"true"
-            }
-        },
-        // ...
-        {
-            "field":"nome", 
-            "label":"Nome", 
             "input":{
                 "type":"text",
                 "required":"true"
             }
-        }        
+        }       
     ]
 }
 ```
+### Tipos de campos
+
+#### INPUT
+| propriedade | descricao |
+|-------------|-----------|
+|placeholder ||
+|type||
+|value||
+|required||
+|disabled||
+|readonly||
+|pattern||
+|mask||
+
+#### exemplo
+
+```json
+{
+    [
+        {
+            "field":"id",
+            "label":"Código",
+            "input":{
+                "type":"text",
+                "required":"true"
+            }
+        }       
+    ]
+}
+```
+
+#### FILE
+| propriedade | descricao |
+|-------------|-----------|
+|placeholder ||
+|type||
+|value||
+|required||
+|disabled||
+|readonly||
+|pattern||
+|mask||
+
+#### exemplo
+
+```json
+{
+    [
+        {
+            "field":"id",
+            "label":"Código",
+            "input":{
+                "type":"text",
+                "required":"true"
+            }
+        }       
+    ]
+}
+```
+
+#### SELECT
+| propriedade | descricao |
+|-------------|-----------|
+|placeholder ||
+|type||
+|value||
+|required||
+|disabled||
+|readonly||
+|pattern||
+|mask||
+
+#### exemplo
+
+```json
+{
+    [
+        {
+            "field":"id",
+            "label":"Código",
+            "input":{
+                "type":"text",
+                "required":"true"
+            }
+        }       
+    ]
+}
+```
+
+#### CHECKBOX
+| propriedade | descricao |
+|-------------|-----------|
+|placeholder ||
+|type||
+|value||
+|required||
+|disabled||
+|readonly||
+|pattern||
+|mask||
+
+#### TEXTAREA
+| propriedade | descricao |
+|-------------|-----------|
+|placeholder ||
+|type||
+|value||
+|required||
+|disabled||
+|readonly||
+|pattern||
+|mask||
+
+
 #### validação de dados em branco
 > em breve
 #### validação de dados em regex
@@ -119,3 +220,69 @@ Quando não for passado o tipo do campo na chave do objeto, sempre será o input
 > em breve
 ## Exemplos
 > em breve
+
+```html
+<formdata 
+
+:fields="
+[
+    [
+        {
+            field:'TX_NOME', 
+            label:'Nome', 
+            input: {
+                placeholder:'Nome', 
+                required:true, 
+            }
+        },
+    ],
+    [
+        {
+            field:'TX_RG', 
+            label:'RG', 
+            input: {
+                placeholder:'RG', 
+                required:true, 
+            }
+        },
+        {
+            field:'TX_CPF', 
+            label:'CPF', 
+            input: {
+                placeholder:'CPF', 
+                required:true, 
+            }
+        },                    
+    ],
+    [
+        {
+            field:'TX_ENDERECO', 
+            label:'Endereço', 
+            input: {
+                placeholder:'Endereço', 
+                required:true, 
+            }
+        },
+    ],
+    [
+        {
+            field:'CS_SEXO',
+            label:'Sexo',
+            select: {
+                data: [
+                    {
+                        value:1,
+                        text:'Masculino'
+                    },
+                    {
+                        value:2,
+                        text:'Femenino'
+                    }
+                ]
+            }
+        }
+    ]
+                
+]">
+</formdata>
+```
