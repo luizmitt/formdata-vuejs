@@ -1,4 +1,30 @@
 {
+  "pessoa": [
+    {
+      "id":"1",
+      "TX_NOME":"Luiz Schmitt",
+      "TX_RG":"20203946",
+      "TX_CPF":"12323412398",
+      "TX_EMAIL":"luizschmitt@email.com",
+      "CS_SEXO":"1",
+      "DT_NASCIMENTO":"01-08-1980",
+      "TX_ENDERECO":"Rua Teste N 404"
+    }
+  ],
+
+  "comboSexo": [
+    {
+      "id":"1",
+      "value":"1",
+      "text":"Masculino"
+    },
+    {
+      "id":"2",
+      "value":"2",
+      "text":"Femenino"
+    }    
+  ],
+
   "comboA": [
     {
       "id": "1",
