@@ -20,5 +20,24 @@
             "id": "2",
             "name": "opcao C2"
         }
+    ],
+
+    "comboD": [
+        {
+            "id":"1",
+            "comboCId":"2",
+            "name":"opcao C2-D1"
+        },
+        {
+            "id":"2",
+            "comboCId":"2",
+            "name":"opcao C2-D2"
+        },
+        {
+            "id":"3",
+            "comboCId":"1",
+            "name":"opcao C1-D1"
+        }        
+
     ]
 }

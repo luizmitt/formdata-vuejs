@@ -42,7 +42,7 @@ Vue.component('formdata', {
                     <div class="form-group">
                         <label :class="[{'formdata-required':column.select.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
                         <select class="form-control" :class="column.select.class" :id="column.field"  :disabled="column.select.disabled" :required="column.select.required">
-                            <option v-show="column.select.placeholder" value>{{column.select.placeholder}}</option>
+                            <option value>{{column.select.placeholder ? column.select.placeholder : formdata_default.select.placeholder}}</option>
                             <option :selected="column.select.selected == data.value" v-for="data in column.select.data" :value="data.value">{{data.text}}</option>
                         </select>
                         <div class="invalid-feedback">
@@ -185,11 +185,14 @@ Vue.component('formdata', {
                 // replica os dados pro combo
                 column.select.data = res.data;
               });
+
+              this.parentNode(column, column.select.data);
             } else if (typeof column.select.data === 'object') { // e se for um objeto
               // executa o axios na urlApi
               await axios.get(column.select.data.urlApi).then((res) => {
                 // se houver switchFields
                 if (column.select.data.switchFields !== undefined) {
+                  this.parentNode(column, column.select.data.urlApi, column.select.data.switchFields);
                   // pega o field que sera value do combo
                   // pega o field que sera o text do combo
                   const {
@@ -229,6 +232,31 @@ Vue.component('formdata', {
           .then(() => {})
           .catch(() => {});
       }
+    },
+    parentNode(column, link, switchFields) {
+      if (switchFields === undefined) {
+        switchFields.value = 'value';
+        switchFields.text = 'text';
+      }
+      // se ee possuir um pai
+      if (column.parent) {
+        document.querySelector(`#${column.parent}`).addEventListener('change', (event) => {
+          axios.get(link, {
+            params: {
+              [column.parent]: event.currentTarget.value,
+            },
+          }).then((res) => {
+            const options = [];
+            res.data.map((o) => {
+              options.push(`<option value="${o[switchFields.value]}">${o[switchFields.text]}</option>`);
+            });
+            document.querySelector(`#${column.field}`).innerHTML = options.join('');
+          });
+        });
+        column.select.data = [];
+        return false;
+      }
+      return true;
     },
     // Método para validar se o formulário está apto para ser submetido.
     validate() {
