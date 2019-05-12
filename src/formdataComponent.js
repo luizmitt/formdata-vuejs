@@ -182,24 +182,34 @@ Vue.component('formdata', {
             } else if (typeof column.select.data === 'string') { // se for um string, precisa ser uma url
               // executa o axios nessa url
               await axios.get(column.select.data).then((res) => {
+                // quando houver parent
+                if (this.parentNode(column, column.select.data)) {
+                  // encerra a replica dos dados
+                  // para aguardar a selecao do pai
+                  return false;
+                }
                 // replica os dados pro combo
                 column.select.data = res.data;
+                return true;
               });
-
-              this.parentNode(column, column.select.data);
             } else if (typeof column.select.data === 'object') { // e se for um objeto
               // executa o axios na urlApi
               await axios.get(column.select.data.urlApi).then((res) => {
+                // quando houver parent
+                if (this.parentNode(column, column.select.data.urlApi, column.select.data.switchFields)) {
+                  // encerra a replica de dados
+                  // para aguardar a selecao do pai
+                  return false;
+                }
                 // se houver switchFields
                 if (column.select.data.switchFields !== undefined) {
-                  this.parentNode(column, column.select.data.urlApi, column.select.data.switchFields);
                   // pega o field que sera value do combo
                   // pega o field que sera o text do combo
                   const {
                     value,
                     text,
                   } = column.select.data.switchFields;
-                    // limpa os dados
+                  // limpa os dados
                   column.select.data = [];
                   // faz a troca e replica os dados pro combo
                   res.data.map((result) => {
@@ -209,8 +219,13 @@ Vue.component('formdata', {
                         text: result[text],
                       });
                     }
+                    return true;
                   });
+                } else {
+                  column.select.data = res.data;
                 }
+
+                return true;
               });
             }
           } else { // se não for nenhum dos tipos acima, por padrão ele carrega input com valores default.
@@ -235,28 +250,33 @@ Vue.component('formdata', {
     },
     parentNode(column, link, switchFields) {
       if (switchFields === undefined) {
+        switchFields = {};
         switchFields.value = 'value';
         switchFields.text = 'text';
       }
-      // se ee possuir um pai
+      // se possuir um pai
       if (column.parent) {
+        // cria um evento no pai
         document.querySelector(`#${column.parent}`).addEventListener('change', (event) => {
+          // passando o link e o parametro de selecao
           axios.get(link, {
             params: {
               [column.parent]: event.currentTarget.value,
             },
           }).then((res) => {
-            const options = [];
+            // monta as opções do retorno no filho
+            const options = [`<option value>${column.select.placeholder ? column.select.placeholder : this.formdata_default.select.placeholder}</option>`];
             res.data.map((o) => {
               options.push(`<option value="${o[switchFields.value]}">${o[switchFields.text]}</option>`);
+              return true;
             });
             document.querySelector(`#${column.field}`).innerHTML = options.join('');
           });
         });
         column.select.data = [];
-        return false;
+        return true;
       }
-      return true;
+      return false;
     },
     // Método para validar se o formulário está apto para ser submetido.
     validate() {
