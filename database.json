@@ -1,106 +1,68 @@
 {
-  "pessoa": [
+  "pessoa": [{
+    "id": "1",
+    "TX_NOME": "Luiz Schmitt",
+    "TX_RG": "20203946",
+    "TX_CPF": "12323412398",
+    "TX_EMAIL": "luizschmitt@email.com",
+    "CS_SEXO": "1",
+    "DT_NASCIMENTO": "01-08-1980",
+    "TX_ENDERECO": "Rua Teste N 404"
+  }],
+  "comboSexo": [{
+      "id": "1",
+      "value": "1",
+      "text": "Masculino"
+    },
     {
-      "id":"1",
-      "TX_NOME":"Luiz Schmitt",
-      "TX_RG":"20203946",
-      "TX_CPF":"12323412398",
-      "TX_EMAIL":"luizschmitt@email.com",
-      "CS_SEXO":"1",
-      "DT_NASCIMENTO":"01-08-1980",
-      "TX_ENDERECO":"Rua Teste N 404"
+      "id": "2",
+      "value": "2",
+      "text": "Femenino"
+    }
+  ],
+  "comboSec": [{
+      "id": "1",
+      "value": "1",
+      "text": "SEMAD"
+    },
+    {
+      "id": "2",
+      "value": "2",
+      "text": "SEMEF"
     }
   ],
 
-  "comboSexo": [
-    {
-      "id":"1",
-      "value":"1",
-      "text":"Masculino"
+  "comboDep": [{
+      "id": "1",
+      "comboSecId": "1",
+      "value": "1",
+      "text": "DSTI"
     },
     {
-      "id":"2",
-      "value":"2",
-      "text":"Femenino"
-    }    
+      "id": "2",
+      "comboSecId": "1",
+      "value": "2",
+      "text": "DEPLAN"
+    },
+    {
+      "id": "3",
+      "comboSecId": "2",
+      "value": "1",
+      "text": "UGCM"
+    }
   ],
 
-  "comboA": [
-    {
+  "comboSet": [{
       "id": "1",
+      "comboDepId": "1",
       "value": "1",
-      "text": "opcao A1"
+      "text": "DSIS"
     },
     {
       "id": "2",
+      "comboDepId": "2",
       "value": "2",
-      "text": "opcao A2"
-    },
-    {
-      "id": "3",
-      "value": "3",
-      "text": "Outro Item"
-    }
-  ],
-  "comboB": [
-    {
-      "id": "1",
-      "comboAId": "1",
-      "value": "1",
-      "text": "opcao B1"
-    },
-    {
-      "id": "2",
-      "comboAId": "2",
-      "value": "2",
-      "text": "opcao B2"
-    }
-  ],
-  "comboC": [
-    {
-      "id": "1",
-      "name": "opcao C1"
-    },
-    {
-      "id": "2",
-      "name": "opcao C2"
-    }
-  ],
-  "comboD": [
-    {
-      "id": "1",
-      "comboCId": "2",
-      "value": "1",
-      "text": "opcao C2-D1"
-    },
-    {
-      "id": "2",
-      "comboCId": "2",
-      "value": "2",
-      "text": "opcao C2-D2"
-    },
-    {
-      "id": "3",
-      "comboCId": "1",
-      "value": "3",
-      "text": "opcao C1-D1"
-    }
-  ],
-  "comboE": [
-    {
-      "id": "1",
-      "name": "opcao E1-D1",
-      "comboCId": "1"
-    },
-    {
-      "id": "2",
-      "name": "opcao E2-D2",
-      "comboCId": "2"
-    },
-    {
-      "id": "3",
-      "name": "opcao E3-D2",
-      "comboCId": "2"
+      "text": "Planejamento Estrategico"
     }
   ]
 }

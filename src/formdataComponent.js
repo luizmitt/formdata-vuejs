@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
 /* eslint-disable max-len */
 /* eslint-disable func-names */
@@ -14,16 +15,16 @@
 
 Vue.component('formdata', {
   name: 'formdata',
-  props: ['urlApi', 'fields', 'actions'],
+  props: ['action', 'fields', 'buttons', 'classes'],
   template: `
-<form class="needs-validation" novalidate @submit.prevent="save()" :enctype="formdata.hasFiles?'multipart/form-data':false">
+<form @submit.prevent="save" class="needs-validation" :class="classes" novalidate :method="formdata.action.method" :enctype="formdata.hasFiles?'multipart/form-data':false">
     <template v-for="(row) in this.formdata.fields">
         <div class="row">
             <div v-for="(column) in row" :class="setColumnWidthByRow(row)">
                 <template v-if="column.input">
                     <div class="form-group">
                         <label :class="[{'formdata-required':column.input.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
-                        <input :ref="column.field" :pattern="setPatternValue(column.field, column.input.pattern)" :type="column.input.type" class="form-control" :class="column.input.class" :id="column.field" :placeholder="column.input.placeholder" :disabled="column.input.disabled" :required="column.input.required">
+                        <input v-model="formdata.data[column.field]" :ref="column.field" :name="column.field" :pattern="setPatternValue(column.field, column.input.pattern)" :type="column.input.type" class="form-control" :class="column.input.class" :id="column.field" :placeholder="column.input.placeholder" :disabled="column.input.disabled" :required="column.input.required">
                         <div class="invalid-feedback">
                             {{formdata_default.message.required}}
                         </div>
@@ -32,7 +33,7 @@ Vue.component('formdata', {
                 <template v-if="setFormType(column.file)">
                     <div class="form-group">
                         <label :class="[{'formdata-required':column.file.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
-                        <input :ref="column.field" type="file" class="form-control" :class="column.file.class" :id="column.field" :placeholder="column.file.placeholder" :disabled="column.file.disabled" :required="column.file.required">
+                        <input :ref="column.field" :name="column.field" type="file" class="form-control" :class="column.file.class" :id="column.field" :placeholder="column.file.placeholder" :disabled="column.file.disabled" :required="column.file.required">
                         <div class="invalid-feedback">
                             {{formdata_default.message.required}}
                         </div>
@@ -41,7 +42,7 @@ Vue.component('formdata', {
                 <template v-else-if="column.select">
                     <div class="form-group">
                         <label :class="[{'formdata-required':column.select.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
-                        <select class="form-control" :class="column.select.class" :id="column.field"  :disabled="column.select.disabled" :required="column.select.required">
+                        <select v-model="formdata.data[column.field]" :ref="column.field" :name="column.field" class="form-control" :class="column.select.class" :id="column.field"  :disabled="column.select.disabled" :required="column.select.required">
                             <option value>{{column.select.placeholder ? column.select.placeholder : formdata_default.select.placeholder}}</option>
                             <option :selected="column.select.selected == data.value" v-for="data in column.select.data" :value="data.value">{{data.text}}</option>
                         </select>
@@ -52,7 +53,7 @@ Vue.component('formdata', {
                 </template>
                 <template v-else-if="column.checkbox">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value='' :id="column.field"  :disabled="column.checkbox.disabled" :required="column.checkbox.required">
+                        <input v-model="formdata.data[column.field]" :ref="column.field" :name="column.field" class="form-check-input" type="checkbox" value='' :id="column.field"  :disabled="column.checkbox.disabled" :required="column.checkbox.required">
                         <label :class="[{'formdata-required':column.checkbox.required}]" class="form-check-label" :for="column.field">
                             {{column.label}}
                         </label>
@@ -64,36 +65,39 @@ Vue.component('formdata', {
                 <template v-else-if="column.textarea">
                     <div class="form-group">
                         <label :for="column.field">{{column.label}}</label>
-                        <textarea class="form-control" :id="column.field" :rows="column.textarea.rows" :cols="column.textarea.cols"  :disabled="column.textarea.disabled" :required="column.textarea.required"></textarea>
+                        <textarea v-model="formdata.data[column.field]" :ref="column.field" :name="column.field" class="form-control" :id="column.field" :rows="column.textarea.rows" :cols="column.textarea.cols" :disabled="column.textarea.disabled" :required="column.textarea.required"></textarea>
                         <div class="invalid-feedback">
-                            {{formdata_default.message.required}}
+                          {{formdata_default.message.required}}
                         </div>                          
                     </div>                                 
                 </template>
             </div>
         </div>
     </template>
-    
     <slot v-bind:formdata="this" />
-
-    <template v-if="formdata.actions.length">
-
+    <template v-if="formdata.buttons.length">
+      <div class="row">
+        <button v-for="button in formdata.buttons" v-show="button.type == 'save'" type="submit" class="btn btn-default" :class="button.class">
+          <i class="" :class="button.icon" v-show="button.icon.length"></i>
+          <span>{{button.label}}</span>
+        </button>
+      </div>
     </template>
     <template v-else>
-
-    <button type="submit">Salvar</button>
-    <button type="reset">Resetar</button>
+    <button class="btn btn-default" type="submit">Salvar</button>
+    <button class="btn btn-default" type="reset">Resetar</button>
     </template>
 </form>`,
   data() {
     return {
       // definições atuais do formdata
       formdata: {
-        urlApi: '',
+        action: this.action,
         fields: this.fields,
-        actions: [],
-        lock: true,
-        hasFiles: false,
+        buttons: this.buttons,
+        data: {},
+        lock: true, // impede do formulario ser submetido
+        hasFiles: false, // se o formulario for um formulario de arquivos
       },
       // definições padrões do formdata
       formdata_default: {
@@ -158,8 +162,8 @@ Vue.component('formdata', {
       const {
         fields,
       } = this.formdata;
-        // se não for criado array para definição de linhas/colunas
-        // agrupa todos e faz somente quebra de linhas.
+      // se não for criado array para definição de linhas/colunas
+      // agrupa todos e faz somente quebra de linhas.
       if (!Array.isArray(fields[0])) {
         this.formdata.fields = [];
         this.formdata.fields.push(fields);
@@ -224,7 +228,6 @@ Vue.component('formdata', {
                 } else {
                   column.select.data = res.data;
                 }
-
                 return true;
               });
             }
@@ -240,13 +243,39 @@ Vue.component('formdata', {
       });
     },
     // Método para executar a ação do formulário.
-    async save() {
+    save() {
       if (this.validate()) {
-        await axios
-          .get(this.urlApi, {})
-          .then(() => {})
-          .catch(() => {});
+        switch (this.formdata.action.method) {
+          case 'GET':
+            this.getFormData(this.formdata.action.urlApi);
+            break;
+          case 'POST':
+            this.postFormData();
+            break;
+          case 'PUT':
+            this.putFormData();
+            break;
+          default:
+            this.postFormData();
+        }
       }
+    },
+    getFormData(url) {
+      axios.get(url, {
+        params: this.formdata.data,
+      }).then((res) => {
+        console.log(res);
+      });
+    },
+    postFormData() {
+      axios.post(this.formdata.action.urlApi, this.formdata.data).then((res) => {
+        console.log(res);
+      });
+    },
+    putFormData() {
+      axios.put(this.formdata.action.urlApi, this.formdata.data).then((res) => {
+        console.log(res);
+      });
     },
     parentNode(column, link, switchFields) {
       if (switchFields === undefined) {
