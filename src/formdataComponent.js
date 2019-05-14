@@ -6,6 +6,7 @@
 
 /**
  * Author Luiz Schmitt <lzschmitt@gmail.com>
+ *        Gabriel Vieira <gabriel_castr@outlook.com.br>
  *
  * A idéia é criar formularios complexos a partir de uma configuração no component, ou seja,
  * apenas utilizando o html, passando determinadas propriedades e suas devidas configurações,
@@ -15,9 +16,9 @@
 
 Vue.component('formdata', {
   name: 'formdata',
-  props: ['action', 'fields', 'buttons', 'classes'],
+  props: ['action', 'fields', 'buttons'],
   template: `
-<form @submit.prevent="save" class="needs-validation" :class="classes" novalidate :method="formdata.action.method" :enctype="formdata.hasFiles?'multipart/form-data':false">
+<form @submit.prevent="save" class="needs-validation" novalidate :method="formdata.action.method" :enctype="formdata.hasFiles?'multipart/form-data':false">
     <template v-for="(row) in this.formdata.fields">
         <div class="row">
             <div v-for="(column) in row" :class="setColumnWidthByRow(row)">
@@ -42,7 +43,7 @@ Vue.component('formdata', {
                 <template v-else-if="column.select">
                     <div class="form-group">
                         <label :class="[{'formdata-required':column.select.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
-                        <select v-model="formdata.data[column.field]" :ref="column.field" :name="column.field" class="form-control" :class="column.select.class" :id="column.field"  :disabled="column.select.disabled" :required="column.select.required">
+                        <select v-select2="formdata.data[column.field]" :ref="column.field" :name="column.field" class="form-control" :class="column.select.class" :id="column.field"  :disabled="column.select.disabled" :required="column.select.required">
                             <option value>{{column.select.placeholder ? column.select.placeholder : formdata_default.select.placeholder}}</option>
                             <option :selected="column.select.selected == data.value" v-for="data in column.select.data" :value="data.value">{{data.text}}</option>
                         </select>
@@ -278,6 +279,7 @@ Vue.component('formdata', {
       });
     },
     parentNode(column, link, switchFields) {
+      const vm = this;
       if (switchFields === undefined) {
         switchFields = {};
         switchFields.value = 'value';
@@ -286,15 +288,16 @@ Vue.component('formdata', {
       // se possuir um pai
       if (column.parent) {
         // cria um evento no pai
-        document.querySelector(`#${column.parent}`).addEventListener('change', (event) => {
+        $(`#${column.parent}`).on('select2:select select2:unselect select2:close change', function () {
+          vm.formdata.data[column.field] = $(this).val();
           // passando o link e o parametro de selecao
           axios.get(link, {
             params: {
-              [column.parent]: event.currentTarget.value,
+              [column.parent]: $(this).val(),
             },
           }).then((res) => {
             // monta as opções do retorno no filho
-            const options = [`<option value>${column.select.placeholder ? column.select.placeholder : this.formdata_default.select.placeholder}</option>`];
+            const options = [`<option value>${column.select.placeholder ? column.select.placeholder : vm.formdata_default.select.placeholder}</option>`];
             res.data.map((o) => {
               options.push(`<option value="${o[switchFields.value]}">${o[switchFields.text]}</option>`);
               return true;
@@ -385,6 +388,30 @@ Vue.component('formdata', {
         this.formdata.hasFiles = true;
       }
       return form;
+    },
+  },
+
+  directives: {
+    select2: {
+      componentUpdated(el) {
+        options = {
+          width: '100%',
+          minimumInputLength: false,
+          placeholder: 'Escolha...',
+          cache: true,
+          language: 'pt-BR',
+        };
+        if ($(el).attr('multiple') === undefined) {
+          options.allowClear = true;
+          options.multiple = false;
+        }
+        $(el).parents().each(function () {
+          if ($(this).hasClass('modal')) {
+            options.dropdownParent = $('.modal');
+          }
+        });
+        $(el).select2(options);
+      },
     },
   },
 

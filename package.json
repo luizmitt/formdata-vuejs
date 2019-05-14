@@ -9,6 +9,7 @@
     "bootstrap4": "0.0.1-security",
     "jquery": "^3.3.1",
     "json-server": "^0.14.2",
+    "select2": "^4.0.7-rc.0",
     "vue": "^2.6.8"
   },
   "devDependencies": {
