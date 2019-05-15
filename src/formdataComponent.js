@@ -102,6 +102,7 @@ Vue.component('formdata', {
       },
       // definições padrões do formdata
       formdata_default: {
+        debug: true,
         message: {
           required: 'Preencha o campo obrigatório.',
           regex: 'O valor do campo está inválido.',
@@ -209,33 +210,42 @@ Vue.component('formdata', {
                 // pega os parametros necessarios
                 let {
                   urlApi,
-                  fields
                 } = column.select.data.autofill;
+
+                const {
+                  fields: autofillFields,
+                } = column.select.data.autofill;
+
                 let data = [];
                 // se não for informado uma api para pegar os dados, ele usa a do proprio combo
                 urlApi = (urlApi === undefined) ? column.select.data.urlApi : urlApi;
                 // armazena os dados da api
                 axios.get(urlApi).then((res) => {
+                  // eslint-disable-next-line prefer-destructuring
                   data = res.data;
                 });
                 // cria o evento para quando mudar a selecao, preencher todos os campos
                 $(`#${column.field}`).on('change', () => {
                   // pega o valor da selecao
-                  let selection = $(`#${column.field}`).val();
+                  const selection = $(`#${column.field}`).val();
                   // faz uma buscar da selecao
+                  // eslint-disable-next-line array-callback-return
                   data.find((d) => {
                     // se encontrar
                     if (selection === d[column.field]) {
                       // seta todos os campos informados com o seu devido valor
-                      fields.forEach((field) => {
+                      autofillFields.forEach((field) => {
                         $(`#${field}`).val(d[field]);
+                      });
+                    } else if (!selection) { // se não tiver selecionado
+                      // limpa todos os campos
+                      autofillFields.forEach((field) => {
+                        $(`#${field}`).val('');
                       });
                     }
                   });
                 });
-
               }
-
               // executa o axios na urlApi
               await axios.get(column.select.data.urlApi).then((res) => {
                 // se houver switchFields
@@ -274,6 +284,12 @@ Vue.component('formdata', {
           return column;
         }));
       });
+    },
+    log(message, sym = 'info') {
+      if (this.formdata_default.debug) {
+        console[sym](message);
+      }
+      return true;
     },
     // Método para executar a ação do formulário.
     save() {
