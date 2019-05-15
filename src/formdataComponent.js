@@ -39,7 +39,7 @@ Vue.component('formdata', {
                             {{formdata_default.message.required}}
                         </div>
                     </div>
-                </template>                
+                </template>
                 <template v-else-if="column.select">
                     <div class="form-group">
                         <label :class="[{'formdata-required':column.select.required}]" v-show="column.label" :for="column.field">{{column.label}}</label>
@@ -49,7 +49,7 @@ Vue.component('formdata', {
                         </select>
                         <div class="invalid-feedback">
                             {{formdata_default.message.required}}
-                        </div>                        
+                        </div>
                     </div>
                 </template>
                 <template v-else-if="column.checkbox">
@@ -60,7 +60,7 @@ Vue.component('formdata', {
                         </label>
                         <div class="invalid-feedback">
                             {{formdata_default.message.required}}
-                        </div>                          
+                        </div>
                     </div>
                 </template>
                 <template v-else-if="column.textarea">
@@ -69,8 +69,8 @@ Vue.component('formdata', {
                         <textarea v-model="formdata.data[column.field]" :ref="column.field" :name="column.field" class="form-control" :id="column.field" :rows="column.textarea.rows" :cols="column.textarea.cols" :disabled="column.textarea.disabled" :required="column.textarea.required"></textarea>
                         <div class="invalid-feedback">
                           {{formdata_default.message.required}}
-                        </div>                          
-                    </div>                                 
+                        </div>
+                    </div>
                 </template>
             </div>
         </div>
@@ -186,8 +186,8 @@ Vue.component('formdata', {
               // replica os dados
               column.select.data = column.select.data;
             } else if (typeof column.select.data === 'string') { // se for um string, precisa ser uma url
-              // executa o axios nessa url
-              await axios.get(column.select.data).then((res) => {
+              // executa o http.nessa url
+              await http.get(column.select.data).then((res) => {
                 // quando houver parent
                 if (this.parentNode(column, column.select.data)) {
                   // encerra a replica dos dados
@@ -217,13 +217,47 @@ Vue.component('formdata', {
                 } = column.select.data.autofill;
 
                 let data = [];
-                // se não for informado uma api para pegar os dados, ele usa a do proprio combo
-                urlApi = (urlApi === undefined) ? column.select.data.urlApi : urlApi;
-                // armazena os dados da api
-                axios.get(urlApi).then((res) => {
-                  // eslint-disable-next-line prefer-destructuring
-                  data = res.data;
+                // executa o http.na urlApi
+                await http.get(column.select.data.urlApi).then((res) => {
+                  // api do pmm: hack para deixar um nivel apenas.
+                  if (res.data.data !== undefined) {
+                    data = res.data = res.data.data;
+                  }
+                  // se houver switchFields
+                  if (column.select.data.switchFields !== undefined) {
+                    // pega o field que sera value do combo
+                    // pega o field que sera o text do combo
+                    const {
+                      value,
+                      text,
+                    } = column.select.data.switchFields;
+                    // limpa os dados
+                    column.select.data = [];
+                    // faz a troca e replica os dados pro combo
+                    res.data.map((result) => {
+                      if (result[value] !== undefined && result[text] !== undefined) {
+                        column.select.data.push({
+                          value: result[value],
+                          text: result[text],
+                        });
+                      }
+                      return true;
+                    });
+                  } else {
+                    column.select.data = res.data;
+                  }
+                  return true;
                 });
+                // se não for informado uma api para pegar os dados, ele usa a do proprio combo
+                // mas for passada, ele faz outra requisição
+                if (urlApi === undefined) {
+                  http.get(urlApi).then((res) => {
+                    // api do pmm: hack para deixar um nivel apenas.
+                    if (res.data.data !== undefined) {
+                      data = res.data = res.data.data;
+                    }
+                  });
+                }
                 // cria o evento para quando mudar a selecao, preencher todos os campos
                 $(`#${column.field}`).on('change', () => {
                   // pega o valor da selecao
@@ -246,33 +280,6 @@ Vue.component('formdata', {
                   });
                 });
               }
-              // executa o axios na urlApi
-              await axios.get(column.select.data.urlApi).then((res) => {
-                // se houver switchFields
-                if (column.select.data.switchFields !== undefined) {
-                  // pega o field que sera value do combo
-                  // pega o field que sera o text do combo
-                  const {
-                    value,
-                    text,
-                  } = column.select.data.switchFields;
-                  // limpa os dados
-                  column.select.data = [];
-                  // faz a troca e replica os dados pro combo
-                  res.data.map((result) => {
-                    if (result[value] !== undefined && result[text] !== undefined) {
-                      column.select.data.push({
-                        value: result[value],
-                        text: result[text],
-                      });
-                    }
-                    return true;
-                  });
-                } else {
-                  column.select.data = res.data;
-                }
-                return true;
-              });
             }
           } else { // se não for nenhum dos tipos acima, por padrão ele carrega input com valores default.
             vm.formdata.fields[rIndex][cIndex] = {
@@ -310,19 +317,19 @@ Vue.component('formdata', {
       }
     },
     getFormData(url) {
-      axios.get(url, {
+      http.get(url, {
         params: this.formdata.data,
       }).then((res) => {
         console.log(res);
       });
     },
     postFormData() {
-      axios.post(this.formdata.action.urlApi, this.formdata.data).then((res) => {
+      http.post(this.formdata.action.urlApi, this.formdata.data).then((res) => {
         console.log(res);
       });
     },
     putFormData() {
-      axios.put(this.formdata.action.urlApi, this.formdata.data).then((res) => {
+      http.put(this.formdata.action.urlApi, this.formdata.data).then((res) => {
         console.log(res);
       });
     },
@@ -339,7 +346,7 @@ Vue.component('formdata', {
         $(`#${column.parent}`).on('select2:select select2:unselect select2:close change', function () {
           vm.formdata.data[column.field] = $(this).val();
           // passando o link e o parametro de selecao
-          axios.get(link, {
+          http.get(link, {
             params: {
               [column.parent]: $(this).val(),
             },
