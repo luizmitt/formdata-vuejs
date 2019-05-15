@@ -1,68 +1,15 @@
 {
-  "pessoa": [{
-    "id": "1",
-    "TX_NOME": "Luiz Schmitt",
-    "TX_RG": "20203946",
-    "TX_CPF": "12323412398",
-    "TX_EMAIL": "luizschmitt@email.com",
-    "CS_SEXO": "1",
-    "DT_NASCIMENTO": "01-08-1980",
-    "TX_ENDERECO": "Rua Teste N 404"
-  }],
-  "comboSexo": [{
+  "cursos": [{
       "id": "1",
-      "value": "1",
-      "text": "Masculino"
+      "CS_CURSO": "1",
+      "TX_CURSO": "Ciencias da Computacao",
+      "NB_PERIODO": "1 Periodo"
     },
     {
       "id": "2",
-      "value": "2",
-      "text": "Femenino"
-    }
-  ],
-  "comboSec": [{
-      "id": "1",
-      "value": "1",
-      "text": "SEMAD"
-    },
-    {
-      "id": "2",
-      "value": "2",
-      "text": "SEMEF"
-    }
-  ],
-
-  "comboDep": [{
-      "id": "1",
-      "comboSecId": "1",
-      "value": "1",
-      "text": "DSTI"
-    },
-    {
-      "id": "2",
-      "comboSecId": "1",
-      "value": "2",
-      "text": "DEPLAN"
-    },
-    {
-      "id": "3",
-      "comboSecId": "2",
-      "value": "1",
-      "text": "UGCM"
-    }
-  ],
-
-  "comboSet": [{
-      "id": "1",
-      "comboDepId": "1",
-      "value": "1",
-      "text": "DSIS"
-    },
-    {
-      "id": "2",
-      "comboDepId": "2",
-      "value": "2",
-      "text": "Planejamento Estrategico"
+      "CS_CURSO": "2",
+      "TX_CURSO": "Engenharia da Computacao",
+      "NB_PERIODO": "4 Periodo"
     }
   ]
 }

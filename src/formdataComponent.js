@@ -198,14 +198,46 @@ Vue.component('formdata', {
                 return true;
               });
             } else if (typeof column.select.data === 'object') { // e se for um objeto
+              // quando houver parent
+              if (this.parentNode(column, column.select.data.urlApi, column.select.data.switchFields)) {
+                // encerra a replica de dados
+                // para aguardar a selecao do pai
+                return false;
+              }
+              // se houver preenchimento automatico
+              if (column.select.data.autofill !== undefined) {
+                // pega os parametros necessarios
+                let {
+                  urlApi,
+                  fields
+                } = column.select.data.autofill;
+                let data = [];
+                // se não for informado uma api para pegar os dados, ele usa a do proprio combo
+                urlApi = (urlApi === undefined) ? column.select.data.urlApi : urlApi;
+                // armazena os dados da api
+                axios.get(urlApi).then((res) => {
+                  data = res.data;
+                });
+                // cria o evento para quando mudar a selecao, preencher todos os campos
+                $(`#${column.field}`).on('change', () => {
+                  // pega o valor da selecao
+                  let selection = $(`#${column.field}`).val();
+                  // faz uma buscar da selecao
+                  data.find((d) => {
+                    // se encontrar
+                    if (selection === d[column.field]) {
+                      // seta todos os campos informados com o seu devido valor
+                      fields.forEach((field) => {
+                        $(`#${field}`).val(d[field]);
+                      });
+                    }
+                  });
+                });
+
+              }
+
               // executa o axios na urlApi
               await axios.get(column.select.data.urlApi).then((res) => {
-                // quando houver parent
-                if (this.parentNode(column, column.select.data.urlApi, column.select.data.switchFields)) {
-                  // encerra a replica de dados
-                  // para aguardar a selecao do pai
-                  return false;
-                }
                 // se houver switchFields
                 if (column.select.data.switchFields !== undefined) {
                   // pega o field que sera value do combo

@@ -14,15 +14,9 @@
 <body>
     <div id="app">
         <formdata :action="{urlApi:'http://localhost:3000/pessoa', method:'POST'}" :fields="[
-            [{field:'TX_NOME', label:'Nome', input:{required:true}}],
-            [{field:'TX_RG', label:'RG'}, {field:'TX_CPF', label:'CPF'}],
-            [{field:'TX_EMAIL', 'label':'E-mail'}],
-            [{field:'CS_SEXO', label:'Sexo', select:{data:'http://localhost:3000/comboSexo'}}, {field:'DT_NASCIMENTO',label:'Dt. Nascimento'}],
-            [{field:'TX_ENDERECO', label:'Endereco'}],
-            [{field:'TX_DESCRICAO', label:'Descrição', textarea:true}],
-            [{field:'comboSecId', label:'Secretaria', select:{data:'http://localhost:3000/comboSec'}}],
-            [{field:'comboDepId', label:'Departamento', parent:'comboSecId', select:{data:{urlApi:'http://localhost:3000/comboDep'}}}],
-            [{field:'comboSetId', label:'Setor', parent:'comboDepId', select:{data:{urlApi:'http://localhost:3000/comboSet'}}}]
+            [{field:'CS_CURSO', label:'CURSO', select:{required:true, data:{urlApi:'http://localhost:3000/cursos', switchFields:{value:'CS_CURSO', text:'TX_CURSO'}, autofill:{fields:['TX_CURSO', 'NB_PERIODO']}}}}],
+            [{field:'TX_CURSO', label:'Curso', input:{disabled:true}},{field:'NB_PERIODO', label:'Periodo', input:{disabled:true}}],
+            [{field:'TX_ALUNO', label:'Nome do Aluno', input:{required:true}}]
         ]" :buttons="[
             {type:'save', icon: 'fa fa-check', label:'Salvar'}
         ]"></formdata>
