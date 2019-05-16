@@ -259,7 +259,7 @@ Vue.component('formdata', {
                   });
                 }
                 // cria o evento para quando mudar a selecao, preencher todos os campos
-                $(`#${column.field}`).on('change', () => {
+                $(`#${column.field}`).on('select2:select change', () => {
                   // pega o valor da selecao
                   const selection = $(`#${column.field}`).val();
                   // faz uma buscar da selecao
@@ -270,11 +270,13 @@ Vue.component('formdata', {
                       // seta todos os campos informados com o seu devido valor
                       autofillFields.forEach((field) => {
                         $(`#${field}`).val(d[field]);
+                        vm.formdata.data[field] = d[field];
                       });
                     } else if (!selection) { // se não tiver selecionado
                       // limpa todos os campos
                       autofillFields.forEach((field) => {
                         $(`#${field}`).val('');
+                        vm.formdata.data[field] = '';
                       });
                     }
                   });
@@ -448,7 +450,8 @@ Vue.component('formdata', {
 
   directives: {
     select2: {
-      componentUpdated(el) {
+      componentUpdated(el, binding, vnode) {
+        const vm = this;
         options = {
           width: '100%',
           minimumInputLength: false,
@@ -466,6 +469,10 @@ Vue.component('formdata', {
           }
         });
         $(el).select2(options);
+        $(el).on("select2:select select2:unselect select2:close", function () {
+          vnode.context.$data[binding.expression] = $(this).val();
+        });
+        $(el).val(vnode.context.$data[binding.expression]).trigger("change");
       },
     },
   },
