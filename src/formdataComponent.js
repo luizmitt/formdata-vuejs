@@ -327,7 +327,12 @@ Vue.component('formdata', {
     },
     postFormData() {
       http.post(this.formdata.action.urlApi, this.formdata.data).then((res) => {
-        console.log(res);
+        if (res.data.data.location !== undefined) {
+          toastr.options.onHidden = () => {
+            window.location = res.data.data.location;
+          };
+          toastr.success('Registro adicionado com sucesso!');
+        }
       });
     },
     putFormData() {
@@ -469,14 +474,13 @@ Vue.component('formdata', {
           }
         });
         $(el).select2(options);
-        $(el).on("select2:select select2:unselect select2:close", function () {
-          vnode.context.$data[binding.expression] = $(this).val();
+        $(el).on('select2:select select2:unselect select2:close', function () {
+          vnode.context.$data.formdata.data[vnode.data.ref] = $(this).val();
         });
-        $(el).val(vnode.context.$data[binding.expression]).trigger("change");
+        $(el).val(vnode.context.$data.formdata.data[vnode.data.ref]).trigger('change');
       },
     },
   },
-
   mounted() {
     this.prepareFields();
   },
