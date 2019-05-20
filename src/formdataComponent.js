@@ -85,8 +85,20 @@ Vue.component('formdata', {
       </div>
     </template>
     <template v-else>
-    <button class="btn btn-default" type="submit">Salvar</button>
-    <button class="btn btn-default" type="reset">Resetar</button>
+    <div class="row">
+      <div class="col-md-6 text-left">
+        <button class="btn btn-default" type="reset">
+          <i class="fa fa-ban"></i>
+          <span>Cancel</span>
+        </button>
+      </div>
+      <div class="col-md-6 text-right">
+        <button class="btn btn-default" type="submit">
+          <i class="fa fa-check"></i>
+          <span>Salvar</span>
+        </button>
+      </div>
+    </div>
     </template>
 </form>`,
   data() {
