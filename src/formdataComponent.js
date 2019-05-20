@@ -1,9 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable no-param-reassign */
-/* eslint-disable max-len */
-/* eslint-disable func-names */
-/* eslint-disable no-undef */
-
 /**
  * Author Luiz Schmitt <lzschmitt@gmail.com>
  *        Gabriel Vieira <gabriel_castr@outlook.com.br>
@@ -16,7 +10,7 @@
 
 Vue.component('formdata', {
   name: 'formdata',
-  props: ['action', 'fields', 'buttons'],
+  props: ['action', 'fields', 'buttons', 'autofill', 'apiParams'],
   template: `
 <form @submit.prevent="save" class="needs-validation" novalidate :method="formdata.action.method" :enctype="formdata.hasFiles?'multipart/form-data':false">
     <template v-for="(row) in this.formdata.fields">
@@ -108,6 +102,8 @@ Vue.component('formdata', {
         action: this.action,
         fields: this.fields,
         buttons: this.buttons,
+        autofill: this.autofill,
+        apiParams: this.apiParams,
         data: {},
         lock: true, // impede do formulario ser submetido
         hasFiles: false, // se o formulario for um formulario de arquivos
@@ -463,6 +459,23 @@ Vue.component('formdata', {
       }
       return form;
     },
+
+    prepareAutofill() {
+      if (this.formdata.autofill !== undefined) {
+        http
+          .get(this.formdata.autofill.urlApi)
+          .then((res) => {
+            Object.keys(res.data.data).forEach(dataField => {
+              this.formdata.autofill.fields.forEach(field => {
+                if (res.data.data[field] !== undefined) {
+                  $(`#${field}`).val(res.data.data[field]);
+                  this.formdata.data[field] = res.data.data[field];
+                }
+              });
+            });
+          });
+      }
+    }
   },
 
   directives: {
@@ -495,5 +508,6 @@ Vue.component('formdata', {
   },
   mounted() {
     this.prepareFields();
+    this.prepareAutofill();
   },
 });
